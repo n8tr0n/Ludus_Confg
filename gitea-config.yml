@@ -1,0 +1,53 @@
+ludus:
+  - vm_name: "{{ range_id }}-gitea-server"
+    hostname: "{{ range_id }}-gitea"
+    template: debian-12-x64-server-template
+    vlan: 10
+    ip_last_octet: 10
+    ram_gb: 4
+    cpus: 2
+    linux: 
+      packages:
+        - ca-certificates
+        - python3-urllib3
+        - python3-requests
+    roles:
+      - roles-ansible.gitea
+    role_vars:
+      # Version control and SSL handling
+      gitea_version_check: false
+      gitea_version: "1.24.4"
+      validate_certs: false
+      ansible_python_interpreter: "/usr/bin/python3"
+      
+      # Basic server settings
+      gitea_fqdn: "10.{{ range_second_octet }}.10.10"
+      gitea_root_url: "http://10.{{ range_second_octet }}.10.10:3000"
+      gitea_protocol: "http"
+      gitea_http_port: 3000
+      gitea_http_listen: "0.0.0.0"
+      
+      # SSH settings
+      gitea_start_ssh: true
+      gitea_ssh_port: 2222
+      gitea_ssh_listen: "0.0.0.0"
+      gitea_ssh_domain: "10.{{ range_second_octet }}.10.10"
+      
+      # Database (SQLite - no setup needed)
+      gitea_db_type: "sqlite3"
+      
+      # Disable external dependencies
+      gitea_offline_mode: true
+      
+      # Basic security
+      gitea_disable_registration: false
+      gitea_require_signin: false
+    testing:
+      snapshot: true
+      block_internet: false
+
+# Add global variables that might help with SSL
+global_role_vars:
+  validate_certs: false
+  ansible_python_interpreter: "/usr/bin/python3"
+
